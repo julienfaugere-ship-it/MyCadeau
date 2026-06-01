@@ -7,327 +7,158 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --lou: #e8c4d8;
-    --lou-dark: #8b3a62;
-    --lou-bg: #fdf0f7;
-    --timeo: #b8d4f0;
-    --timeo-dark: #1a4f8a;
-    --timeo-bg: #eef5fd;
-    --charlotte: #c4e8c8;
-    --charlotte-dark: #2d6b35;
-    --charlotte-bg: #f0faf1;
-    --julien: #f0dbb8;
-    --julien-dark: #7a4f10;
-    --julien-bg: #fdf7ee;
-    --text: #1a1a1a;
-    --text-muted: #6b6b6b;
-    --border: #e0e0e0;
-    --white: #ffffff;
-    --radius: 16px;
-    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --lou: #e8c4d8; --lou-dark: #8b3a62;
+    --timeo: #b8d4f0; --timeo-dark: #1a4f8a;
+    --charlotte: #c4e8c8; --charlotte-dark: #2d6b35;
+    --julien: #f0dbb8; --julien-dark: #7a4f10;
+    --text: #1a1a1a; --text-muted: #6b6b6b; --border: #e0e0e0;
+    --white: #ffffff; --radius: 16px; --shadow: 0 4px 20px rgba(0,0,0,0.08);
   }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: #f5f3ef;
-    color: var(--text);
-    min-height: 100vh;
-  }
-
+  body { font-family: 'DM Sans', sans-serif; background: #f5f3ef; color: var(--text); min-height: 100vh; }
   header {
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    padding: 1.5rem 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 1.25rem 2rem; display: flex; align-items: center; gap: 1rem;
+    position: sticky; top: 0; z-index: 100;
   }
-
-  header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
+  header h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; }
+  header span.gift { font-size: 1.5rem; }
+  .subtitle { font-size: 0.82rem; color: var(--text-muted); margin-left: auto; font-weight: 300; }
+  .sync-indicator {
+    display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--text-muted);
+    padding: 0.3rem 0.75rem; border-radius: 100px; border: 1px solid var(--border);
+    background: var(--white); transition: all 0.3s;
   }
-
-  header span { font-size: 1.6rem; }
-
-  .subtitle {
-    font-size: 0.82rem;
-    color: var(--text-muted);
-    margin-left: auto;
-    font-weight: 300;
-  }
-
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #ccc; transition: background 0.3s; }
+  .sync-indicator.synced .sync-dot { background: #3d9e5a; }
+  .sync-indicator.syncing .sync-dot { background: #e09800; animation: pulse 1s infinite; }
+  .sync-indicator.error .sync-dot { background: #e24b4a; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
   .app { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
-
-  .tabs {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-  }
-
+  .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
   .tab-btn {
-    padding: 0.55rem 1.3rem;
-    border-radius: 100px;
-    border: 1.5px solid var(--border);
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 400;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: var(--text-muted);
+    padding: 0.55rem 1.3rem; border-radius: 100px; border: 1.5px solid var(--border);
+    background: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    cursor: pointer; transition: all 0.2s; color: var(--text-muted);
   }
-
   .tab-btn:hover { border-color: #aaa; color: var(--text); }
-
-  .tab-btn.active[data-person="Lou"] { background: var(--lou); border-color: var(--lou-dark); color: var(--lou-dark); font-weight: 500; }
-  .tab-btn.active[data-person="Timéo"] { background: var(--timeo); border-color: var(--timeo-dark); color: var(--timeo-dark); font-weight: 500; }
-  .tab-btn.active[data-person="Charlotte"] { background: var(--charlotte); border-color: var(--charlotte-dark); color: var(--charlotte-dark); font-weight: 500; }
-  .tab-btn.active[data-person="Julien"] { background: var(--julien); border-color: var(--julien-dark); color: var(--julien-dark); font-weight: 500; }
-
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  .person-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
+  .tab-btn.active[data-p="Lou"]       { background:var(--lou);       border-color:var(--lou-dark);       color:var(--lou-dark);       font-weight:500; }
+  .tab-btn.active[data-p="Timeo"]     { background:var(--timeo);     border-color:var(--timeo-dark);     color:var(--timeo-dark);     font-weight:500; }
+  .tab-btn.active[data-p="Charlotte"] { background:var(--charlotte); border-color:var(--charlotte-dark); color:var(--charlotte-dark); font-weight:500; }
+  .tab-btn.active[data-p="Julien"]    { background:var(--julien);    border-color:var(--julien-dark);    color:var(--julien-dark);    font-weight:500; }
+  .panel { display: none; } .panel.active { display: block; }
+  .person-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
   .avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
-    font-weight: 600;
-    flex-shrink: 0;
+    width: 52px; height: 52px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 600; flex-shrink: 0;
   }
-
-  .avatar.Lou { background: var(--lou); color: var(--lou-dark); }
-  .avatar.Timeo { background: var(--timeo); color: var(--timeo-dark); }
-  .avatar.Charlotte { background: var(--charlotte); color: var(--charlotte-dark); }
-  .avatar.Julien { background: var(--julien); color: var(--julien-dark); }
-
-  .person-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-
-  .count-badge {
-    margin-left: auto;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    background: #f0f0f0;
-    padding: 0.3rem 0.8rem;
-    border-radius: 100px;
-  }
-
+  .avatar.Lou { background:var(--lou); color:var(--lou-dark); }
+  .avatar.Timeo { background:var(--timeo); color:var(--timeo-dark); }
+  .avatar.Charlotte { background:var(--charlotte); color:var(--charlotte-dark); }
+  .avatar.Julien { background:var(--julien); color:var(--julien-dark); }
+  .person-name { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:600; }
+  .count-badge { margin-left:auto; font-size:0.8rem; color:var(--text-muted); background:#f0f0f0; padding:0.3rem 0.8rem; border-radius:100px; }
   .add-form {
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-end;
-    flex-wrap: wrap;
+    background:var(--white); border-radius:var(--radius); border:1px solid var(--border);
+    padding:1.25rem 1.5rem; margin-bottom:1.5rem;
+    display:flex; gap:0.75rem; align-items:flex-end; flex-wrap:wrap;
   }
-
-  .form-group { display: flex; flex-direction: column; gap: 0.4rem; flex: 1; min-width: 160px; }
-  .form-group label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
-
+  .form-group { display:flex; flex-direction:column; gap:0.4rem; flex:1; min-width:150px; }
+  .form-group label { font-size:0.75rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:0.05em; }
   .add-form input, .add-form select, .add-form textarea {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.55rem 0.8rem;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    color: var(--text);
-    background: #fafafa;
-    transition: border-color 0.15s;
-    width: 100%;
+    border:1px solid var(--border); border-radius:8px; padding:0.55rem 0.8rem;
+    font-family:'DM Sans',sans-serif; font-size:0.9rem; color:var(--text);
+    background:#fafafa; transition:border-color 0.15s; width:100%;
   }
-
-  .add-form input:focus, .add-form select:focus, .add-form textarea:focus {
-    outline: none;
-    border-color: #999;
-    background: var(--white);
-  }
-
-  .add-form textarea { resize: vertical; min-height: 52px; }
-
+  .add-form input:focus, .add-form select:focus, .add-form textarea:focus { outline:none; border-color:#999; background:var(--white); }
+  .add-form textarea { resize:vertical; min-height:52px; }
   .btn-add {
-    padding: 0.6rem 1.4rem;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: transform 0.15s, opacity 0.15s;
-    white-space: nowrap;
-    align-self: flex-end;
-    height: 38px;
+    padding:0.6rem 1.4rem; border-radius:8px; border:none; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:0.9rem; font-weight:500;
+    transition:transform 0.15s,opacity 0.15s; white-space:nowrap; align-self:flex-end; height:38px;
   }
-
-  .btn-add:active { transform: scale(0.97); }
-
-  .btn-add.Lou { background: var(--lou); color: var(--lou-dark); }
-  .btn-add.Timeo { background: var(--timeo); color: var(--timeo-dark); }
-  .btn-add.Charlotte { background: var(--charlotte); color: var(--charlotte-dark); }
-  .btn-add.Julien { background: var(--julien); color: var(--julien-dark); }
-
-  .ideas-grid { display: flex; flex-direction: column; gap: 0.75rem; }
-
+  .btn-add:active { transform:scale(0.97); }
+  .btn-add.Lou { background:var(--lou); color:var(--lou-dark); }
+  .btn-add.Timeo { background:var(--timeo); color:var(--timeo-dark); }
+  .btn-add.Charlotte { background:var(--charlotte); color:var(--charlotte-dark); }
+  .btn-add.Julien { background:var(--julien); color:var(--julien-dark); }
+  .btn-add:disabled { opacity:0.5; cursor:not-allowed; }
+  .ideas-grid { display:flex; flex-direction:column; gap:0.75rem; }
   .idea-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    padding: 1rem 1.25rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    transition: box-shadow 0.2s, transform 0.2s;
-    animation: slideIn 0.25s ease;
+    background:var(--white); border-radius:var(--radius); border:1px solid var(--border);
+    padding:1rem 1.25rem; display:flex; align-items:flex-start; gap:1rem;
+    transition:box-shadow 0.2s,transform 0.2s; animation:slideIn 0.25s ease;
   }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .idea-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
-
-  .idea-card.done { opacity: 0.55; }
-  .idea-card.done .idea-title { text-decoration: line-through; }
-
+  @keyframes slideIn { from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)} }
+  .idea-card:hover { box-shadow:var(--shadow); transform:translateY(-1px); }
+  .idea-card.done { opacity:0.55; }
+  .idea-card.done .idea-title { text-decoration:line-through; }
   .check-btn {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    background: none;
-    cursor: pointer;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    margin-top: 1px;
-    font-size: 0.75rem;
-    color: transparent;
+    width:26px; height:26px; border-radius:50%; border:2px solid var(--border);
+    background:none; cursor:pointer; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    transition:all 0.2s; margin-top:1px; font-size:0.75rem; color:transparent;
   }
-
-  .check-btn.checked { color: var(--white); }
-  .check-btn.Lou { border-color: var(--lou-dark); }
-  .check-btn.Lou:hover, .check-btn.Lou.checked { background: var(--lou-dark); color: var(--white); border-color: var(--lou-dark); }
-  .check-btn.Timeo { border-color: var(--timeo-dark); }
-  .check-btn.Timeo:hover, .check-btn.Timeo.checked { background: var(--timeo-dark); color: var(--white); border-color: var(--timeo-dark); }
-  .check-btn.Charlotte { border-color: var(--charlotte-dark); }
-  .check-btn.Charlotte:hover, .check-btn.Charlotte.checked { background: var(--charlotte-dark); color: var(--white); border-color: var(--charlotte-dark); }
-  .check-btn.Julien { border-color: var(--julien-dark); }
-  .check-btn.Julien:hover, .check-btn.Julien.checked { background: var(--julien-dark); color: var(--white); border-color: var(--julien-dark); }
-
-  .idea-content { flex: 1; min-width: 0; }
-  .idea-title { font-weight: 500; font-size: 0.95rem; margin-bottom: 0.2rem; }
-  .idea-note { font-size: 0.82rem; color: var(--text-muted); font-weight: 300; line-height: 1.5; }
-
-  .idea-meta {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-top: 0.5rem;
-  }
-
-  .tag {
-    font-size: 0.72rem;
-    padding: 0.2rem 0.6rem;
-    border-radius: 100px;
-    font-weight: 500;
-  }
-
-  .tag.cat { background: #f0f0f0; color: #555; }
-  .tag.price { background: #eef9f0; color: #2d6b35; }
-  .tag.occasion { background: #fef9ed; color: #7a4f10; }
-
-  .delete-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #ccc;
-    font-size: 1rem;
-    padding: 0.2rem;
-    transition: color 0.15s;
-    flex-shrink: 0;
-    line-height: 1;
-  }
-
-  .delete-btn:hover { color: #e24b4a; }
-
-  .empty-state {
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    font-weight: 300;
-  }
-
-  .empty-state .emoji { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
-
-  .filter-bar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .filter-bar span { font-size: 0.78rem; color: var(--text-muted); }
-
+  .check-btn.checked { color:var(--white); }
+  .check-btn.Lou { border-color:var(--lou-dark); }
+  .check-btn.Lou:hover,.check-btn.Lou.checked { background:var(--lou-dark);color:var(--white);border-color:var(--lou-dark); }
+  .check-btn.Timeo { border-color:var(--timeo-dark); }
+  .check-btn.Timeo:hover,.check-btn.Timeo.checked { background:var(--timeo-dark);color:var(--white);border-color:var(--timeo-dark); }
+  .check-btn.Charlotte { border-color:var(--charlotte-dark); }
+  .check-btn.Charlotte:hover,.check-btn.Charlotte.checked { background:var(--charlotte-dark);color:var(--white);border-color:var(--charlotte-dark); }
+  .check-btn.Julien { border-color:var(--julien-dark); }
+  .check-btn.Julien:hover,.check-btn.Julien.checked { background:var(--julien-dark);color:var(--white);border-color:var(--julien-dark); }
+  .idea-content { flex:1; min-width:0; }
+  .idea-title { font-weight:500; font-size:0.95rem; margin-bottom:0.2rem; }
+  .idea-note { font-size:0.82rem; color:var(--text-muted); font-weight:300; line-height:1.5; }
+  .idea-meta { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.5rem; }
+  .tag { font-size:0.72rem; padding:0.2rem 0.6rem; border-radius:100px; font-weight:500; }
+  .tag.cat { background:#f0f0f0; color:#555; }
+  .tag.price { background:#eef9f0; color:#2d6b35; }
+  .tag.occasion { background:#fef9ed; color:#7a4f10; }
+  .delete-btn { background:none; border:none; cursor:pointer; color:#ccc; font-size:1rem; padding:0.2rem; transition:color 0.15s; flex-shrink:0; line-height:1; }
+  .delete-btn:hover { color:#e24b4a; }
+  .empty-state { text-align:center; padding:3rem 1rem; color:var(--text-muted); font-size:0.9rem; font-weight:300; }
+  .empty-state .ico { font-size:2.5rem; display:block; margin-bottom:0.75rem; }
+  .filter-bar { display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap; align-items:center; }
+  .filter-bar span { font-size:0.78rem; color:var(--text-muted); }
   .filter-btn {
-    font-size: 0.78rem;
-    padding: 0.25rem 0.7rem;
-    border-radius: 100px;
-    border: 1px solid var(--border);
-    background: var(--white);
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text-muted);
-    transition: all 0.15s;
+    font-size:0.78rem; padding:0.25rem 0.7rem; border-radius:100px;
+    border:1px solid var(--border); background:var(--white); cursor:pointer;
+    font-family:'DM Sans',sans-serif; color:var(--text-muted); transition:all 0.15s;
   }
-
-  .filter-btn.active, .filter-btn:hover { background: #1a1a1a; color: var(--white); border-color: #1a1a1a; }
-
-  @media (max-width: 600px) {
-    header { padding: 1rem 1.25rem; }
-    header h1 { font-size: 1.2rem; }
-    .subtitle { display: none; }
-    .app { padding: 1.25rem 1rem; }
-    .add-form { flex-direction: column; }
+  .filter-btn.active,.filter-btn:hover { background:#1a1a1a; color:var(--white); border-color:#1a1a1a; }
+  .loading-overlay {
+    position:fixed; inset:0; background:rgba(245,243,239,0.9);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:1rem; z-index:999;
+  }
+  .loading-spinner { width:36px;height:36px;border:2px solid var(--border);border-top-color:#8b3a62;border-radius:50%;animation:spin 0.8s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .loading-text { font-size:0.9rem; color:var(--text-muted); }
+  @media(max-width:600px){
+    header{padding:1rem 1.25rem;} header h1{font-size:1.2rem;}
+    .subtitle{display:none;} .sync-indicator span{display:none;}
+    .app{padding:1.25rem 1rem;} .add-form{flex-direction:column;}
   }
 </style>
 </head>
 <body>
 
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <p class="loading-text">Connexion a Firebase...</p>
+</div>
+
 <header>
-  <span>🎁</span>
-  <h1>Idées Cadeaux</h1>
-  <p class="subtitle">Organisez vos idées par personne</p>
+  <span class="gift">&#127873;</span>
+  <h1>Idees Cadeaux</h1>
+  <p class="subtitle">Synchronise en temps reel</p>
+  <div class="sync-indicator syncing" id="sync-ind">
+    <div class="sync-dot"></div>
+    <span id="sync-lbl">Connexion...</span>
+  </div>
 </header>
 
 <div class="app">
@@ -335,177 +166,196 @@
   <div id="panels"></div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getFirestore, collection, doc, onSnapshot,
+  addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDeUE4U0PKYLzJKmqQELhzCxfQ1A3oB2M0",
+  authDomain: "mycadeau.firebaseapp.com",
+  projectId: "mycadeau",
+  storageBucket: "mycadeau.firebasestorage.app",
+  messagingSenderId: "1020805241758",
+  appId: "1:1020805241758:web:7d8fcb9053445271ff948f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+
 const PERSONS = [
-  { id: 'Lou',      avatar: 'L',  label: 'Lou',      cls: 'Lou'      },
-  { id: 'Timeo',    avatar: 'T',  label: 'Timéo',    cls: 'Timeo'    },
-  { id: 'Charlotte',avatar: 'C',  label: 'Charlotte', cls: 'Charlotte'},
-  { id: 'Julien',   avatar: 'J',  label: 'Julien',   cls: 'Julien'   },
+  { id:'Lou',       avatar:'L', label:'Lou',       cls:'Lou'       },
+  { id:'Timeo',     avatar:'T', label:'Timeo',      cls:'Timeo'     },
+  { id:'Charlotte', avatar:'C', label:'Charlotte',  cls:'Charlotte' },
+  { id:'Julien',    avatar:'J', label:'Julien',    cls:'Julien'    },
 ];
 
-const CATEGORIES = ['', 'Vêtements', 'Tech & Gadgets', 'Livres & Culture', 'Sport & Loisirs', 'Beauté & Bien-être', 'Maison & Déco', 'Expérience', 'Autre'];
-const OCCASIONS  = ['', 'Noël', 'Anniversaire', 'Saint-Valentin', 'Fête des mères', 'Fête des pères', 'Autre'];
-const PRICES     = ['', '< 20 €', '20 – 50 €', '50 – 100 €', '> 100 €'];
+const CATEGORIES = ['','Vetements','Tech & Gadgets','Livres & Culture','Sport & Loisirs','Beaute & Bien-etre','Maison & Deco','Experience','Autre'];
+const OCCASIONS  = ['','Noel','Anniversaire','Saint-Valentin','Fete des meres','Fete des peres','Autre'];
+const PRICES     = ['','< 20 EUR','20 - 50 EUR','50 - 100 EUR','> 100 EUR'];
 
 let data = {};
-try { data = JSON.parse(localStorage.getItem('cadeaux') || '{}'); } catch(e) { data = {}; }
-PERSONS.forEach(p => { if (!data[p.id]) data[p.id] = []; });
-
-function save() { localStorage.setItem('cadeaux', JSON.stringify(data)); }
-
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-
-let activeFilter = {};
+PERSONS.forEach(p => data[p.id] = []);
+let currentPerson = PERSONS[0].id;
+let activeFilter  = {};
 PERSONS.forEach(p => activeFilter[p.id] = 'all');
+let loadedCount = 0;
+let firstLoad = true;
 
-function renderAll() {
-  renderTabs();
-  renderPanels();
+function setSyncStatus(state, label) {
+  document.getElementById('sync-ind').className = 'sync-indicator ' + state;
+  document.getElementById('sync-lbl').textContent = label;
 }
+
+function listenAll() {
+  PERSONS.forEach(p => {
+    const q = query(collection(db, 'cadeaux', p.id, 'ideas'), orderBy('created', 'desc'));
+    onSnapshot(q, snap => {
+      data[p.id] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      loadedCount++;
+      if (firstLoad && loadedCount >= PERSONS.length) {
+        firstLoad = false;
+        document.getElementById('loading').style.display = 'none';
+        setSyncStatus('synced', 'Synchronise');
+      }
+      if (!firstLoad) setSyncStatus('synced', 'Synchronise');
+      renderAll();
+    }, err => {
+      console.error(err);
+      setSyncStatus('error', 'Erreur reseau');
+      document.getElementById('loading').style.display = 'none';
+    });
+  });
+}
+
+async function addIdea(pid) {
+  const titleEl = document.getElementById('inp-title-' + pid);
+  const title = titleEl.value.trim();
+  if (!title) { titleEl.focus(); return; }
+  const btn = document.querySelector('#panel-' + pid + ' .btn-add');
+  if (btn) btn.disabled = true;
+  setSyncStatus('syncing', 'Enregistrement...');
+  try {
+    await addDoc(collection(db, 'cadeaux', pid, 'ideas'), {
+      title,
+      cat:      document.getElementById('inp-cat-'   + pid).value,
+      occasion: document.getElementById('inp-occ-'   + pid).value,
+      price:    document.getElementById('inp-price-' + pid).value,
+      note:     document.getElementById('inp-note-'  + pid).value.trim(),
+      done:     false,
+      created:  serverTimestamp(),
+    });
+    titleEl.value = '';
+    ['inp-note-','inp-cat-','inp-occ-','inp-price-'].forEach(k => {
+      const el = document.getElementById(k + pid);
+      if (el) el.value = '';
+    });
+  } catch(e) { console.error(e); setSyncStatus('error', 'Erreur'); }
+  if (btn) btn.disabled = false;
+}
+
+async function toggleDone(pid, id, current) {
+  setSyncStatus('syncing', 'Mise a jour...');
+  try { await updateDoc(doc(db, 'cadeaux', pid, 'ideas', id), { done: !current }); }
+  catch(e) { setSyncStatus('error', 'Erreur'); }
+}
+
+async function deleteIdea(pid, id) {
+  setSyncStatus('syncing', 'Suppression...');
+  try { await deleteDoc(doc(db, 'cadeaux', pid, 'ideas', id)); }
+  catch(e) { setSyncStatus('error', 'Erreur'); }
+}
+
+function setFilter(pid, val) { activeFilter[pid] = val; renderAll(); }
+function switchTab(id) { currentPerson = id; renderAll(); }
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderAll() { renderTabs(); renderPanels(); }
 
 function renderTabs() {
-  const el = document.getElementById('tabs');
-  el.innerHTML = PERSONS.map(p => `
-    <button class="tab-btn ${currentPerson === p.id ? 'active' : ''}" data-person="${p.label}" onclick="switchTab('${p.id}')">${p.label}</button>
-  `).join('');
-}
-
-let currentPerson = PERSONS[0].id;
-
-function switchTab(id) {
-  currentPerson = id;
-  renderAll();
+  document.getElementById('tabs').innerHTML = PERSONS.map(p =>
+    '<button class="tab-btn ' + (currentPerson===p.id?'active':'') + '" data-p="' + p.id + '" onclick="switchTab(\'' + p.id + '\')">' + p.label + '</button>'
+  ).join('');
 }
 
 function renderPanels() {
-  document.getElementById('panels').innerHTML = PERSONS.map(p => `
-    <div class="panel ${currentPerson === p.id ? 'active' : ''}" id="panel-${p.id}">
-      ${renderPanel(p)}
-    </div>
-  `).join('');
+  document.getElementById('panels').innerHTML = PERSONS.map(p =>
+    '<div class="panel ' + (currentPerson===p.id?'active':'') + '" id="panel-' + p.id + '">' + renderPanel(p) + '</div>'
+  ).join('');
 }
 
 function renderPanel(p) {
   const ideas = data[p.id];
-  const filter = activeFilter[p.id];
-  const filtered = filter === 'done' ? ideas.filter(i => i.done)
-                 : filter === 'todo' ? ideas.filter(i => !i.done)
-                 : ideas;
+  const f = activeFilter[p.id];
+  const list = f==='done' ? ideas.filter(i=>i.done) : f==='todo' ? ideas.filter(i=>!i.done) : ideas;
 
-  return `
-    <div class="person-header">
-      <div class="avatar ${p.cls}">${p.avatar}</div>
-      <div class="person-name">${p.label}</div>
-      <span class="count-badge">${ideas.length} idée${ideas.length !== 1 ? 's' : ''}</span>
-    </div>
+  const cats  = CATEGORIES.map(c => '<option value="' + esc(c) + '">' + (c||'--') + '</option>').join('');
+  const occs  = OCCASIONS.map(o  => '<option value="' + esc(o) + '">' + (o||'--') + '</option>').join('');
+  const prs   = PRICES.map(pr    => '<option value="' + esc(pr) + '">' + (pr||'--') + '</option>').join('');
 
-    <div class="add-form">
-      <div class="form-group" style="flex:2; min-width:200px;">
-        <label>Idée cadeau *</label>
-        <input id="inp-title-${p.id}" type="text" placeholder="Ex: livre de cuisine japonaise…" onkeydown="if(event.key==='Enter') addIdea('${p.id}')">
-      </div>
-      <div class="form-group">
-        <label>Catégorie</label>
-        <select id="inp-cat-${p.id}">
-          ${CATEGORIES.map(c => `<option value="${c}">${c || '—'}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Occasion</label>
-        <select id="inp-occ-${p.id}">
-          ${OCCASIONS.map(o => `<option value="${o}">${o || '—'}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Budget</label>
-        <select id="inp-price-${p.id}">
-          ${PRICES.map(pr => `<option value="${pr}">${pr || '—'}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group" style="flex:2; min-width:200px;">
-        <label>Note / Lien</label>
-        <textarea id="inp-note-${p.id}" placeholder="Description, URL, magasin…" rows="1"></textarea>
-      </div>
-      <button class="btn-add ${p.cls}" onclick="addIdea('${p.id}')">+ Ajouter</button>
-    </div>
+  const cards = list.length === 0
+    ? '<div class="empty-state"><span class="ico">&#127872;</span>' +
+      (ideas.length===0 ? 'Aucune idee pour l\'instant.<br>Ajoutez la premiere ci-dessus !' : 'Aucune idee dans cette categorie.') +
+      '</div>'
+    : list.map(idea =>
+        '<div class="idea-card ' + (idea.done?'done':'') + '">' +
+          '<button class="check-btn ' + p.cls + ' ' + (idea.done?'checked':'') + '" ' +
+            'onclick="toggleDone(\'' + p.id + '\',\'' + idea.id + '\',' + idea.done + ')" ' +
+            'title="' + (idea.done?'Marquer a offrir':'Marquer comme offert') + '">&#10003;</button>' +
+          '<div class="idea-content">' +
+            '<div class="idea-title">' + esc(idea.title) + '</div>' +
+            (idea.note ? '<div class="idea-note">' + esc(idea.note) + '</div>' : '') +
+            '<div class="idea-meta">' +
+              (idea.cat      ? '<span class="tag cat">'      + esc(idea.cat)      + '</span>' : '') +
+              (idea.price    ? '<span class="tag price">'    + esc(idea.price)    + '</span>' : '') +
+              (idea.occasion ? '<span class="tag occasion">' + esc(idea.occasion) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<button class="delete-btn" onclick="deleteIdea(\'' + p.id + '\',\'' + idea.id + '\')" title="Supprimer">&#10005;</button>' +
+        '</div>'
+      ).join('');
 
-    <div class="filter-bar">
-      <span>Afficher :</span>
-      <button class="filter-btn ${filter === 'all' ? 'active' : ''}" onclick="setFilter('${p.id}','all')">Toutes</button>
-      <button class="filter-btn ${filter === 'todo' ? 'active' : ''}" onclick="setFilter('${p.id}','todo')">À offrir</button>
-      <button class="filter-btn ${filter === 'done' ? 'active' : ''}" onclick="setFilter('${p.id}','done')">Offertes ✓</button>
-    </div>
-
-    <div class="ideas-grid">
-      ${filtered.length === 0
-        ? `<div class="empty-state"><span class="emoji">🎀</span>${ideas.length === 0 ? 'Aucune idée pour l\'instant.<br>Ajoutez la première ci-dessus !' : 'Aucune idée dans cette catégorie.'}</div>`
-        : filtered.map(idea => renderCard(idea, p)).join('')
-      }
-    </div>
-  `;
+  return '<div class="person-header">' +
+      '<div class="avatar ' + p.cls + '">' + p.avatar + '</div>' +
+      '<div class="person-name">' + p.label + '</div>' +
+      '<span class="count-badge">' + ideas.length + ' idee' + (ideas.length!==1?'s':'') + '</span>' +
+    '</div>' +
+    '<div class="add-form">' +
+      '<div class="form-group" style="flex:2;min-width:200px;">' +
+        '<label>Idee cadeau *</label>' +
+        '<input id="inp-title-' + p.id + '" type="text" placeholder="Ex: livre de cuisine..." ' +
+          'onkeydown="if(event.key===\'Enter\')addIdea(\'' + p.id + '\')">' +
+      '</div>' +
+      '<div class="form-group"><label>Categorie</label><select id="inp-cat-' + p.id + '">' + cats + '</select></div>' +
+      '<div class="form-group"><label>Occasion</label><select id="inp-occ-' + p.id + '">' + occs + '</select></div>' +
+      '<div class="form-group"><label>Budget</label><select id="inp-price-' + p.id + '">' + prs + '</select></div>' +
+      '<div class="form-group" style="flex:2;min-width:200px;">' +
+        '<label>Note / Lien</label>' +
+        '<textarea id="inp-note-' + p.id + '" placeholder="Description, URL..." rows="1"></textarea>' +
+      '</div>' +
+      '<button class="btn-add ' + p.cls + '" onclick="addIdea(\'' + p.id + '\')">+ Ajouter</button>' +
+    '</div>' +
+    '<div class="filter-bar">' +
+      '<span>Afficher :</span>' +
+      '<button class="filter-btn ' + (f==='all' ?'active':'') + '" onclick="setFilter(\'' + p.id + '\',\'all\')">Toutes</button>' +
+      '<button class="filter-btn ' + (f==='todo'?'active':'') + '" onclick="setFilter(\'' + p.id + '\',\'todo\')">A offrir</button>' +
+      '<button class="filter-btn ' + (f==='done'?'active':'') + '" onclick="setFilter(\'' + p.id + '\',\'done\')">Offertes</button>' +
+    '</div>' +
+    '<div class="ideas-grid">' + cards + '</div>';
 }
 
-function renderCard(idea, p) {
-  return `
-    <div class="idea-card ${idea.done ? 'done' : ''}" id="card-${idea.id}">
-      <button class="check-btn ${p.cls} ${idea.done ? 'checked' : ''}" onclick="toggleDone('${p.id}','${idea.id}')" title="${idea.done ? 'Marquer à offrir' : 'Marquer comme offert'}">✓</button>
-      <div class="idea-content">
-        <div class="idea-title">${escHtml(idea.title)}</div>
-        ${idea.note ? `<div class="idea-note">${linkify(escHtml(idea.note))}</div>` : ''}
-        <div class="idea-meta">
-          ${idea.cat     ? `<span class="tag cat">${escHtml(idea.cat)}</span>` : ''}
-          ${idea.price   ? `<span class="tag price">${escHtml(idea.price)}</span>` : ''}
-          ${idea.occasion? `<span class="tag occasion">${escHtml(idea.occasion)}</span>` : ''}
-        </div>
-      </div>
-      <button class="delete-btn" onclick="deleteIdea('${p.id}','${idea.id}')" title="Supprimer">✕</button>
-    </div>
-  `;
-}
+window.addIdea    = addIdea;
+window.toggleDone = toggleDone;
+window.deleteIdea = deleteIdea;
+window.setFilter  = setFilter;
+window.switchTab  = switchTab;
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function linkify(s) {
-  return s.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;opacity:0.7;">$1</a>');
-}
-
-function addIdea(pid) {
-  const title = document.getElementById(`inp-title-${pid}`).value.trim();
-  if (!title) { document.getElementById(`inp-title-${pid}`).focus(); return; }
-  const idea = {
-    id: uid(),
-    title,
-    cat:      document.getElementById(`inp-cat-${pid}`).value,
-    occasion: document.getElementById(`inp-occ-${pid}`).value,
-    price:    document.getElementById(`inp-price-${pid}`).value,
-    note:     document.getElementById(`inp-note-${pid}`).value.trim(),
-    done:     false,
-    created:  Date.now(),
-  };
-  data[pid].unshift(idea);
-  save();
-  renderAll();
-}
-
-function toggleDone(pid, id) {
-  const idea = data[pid].find(i => i.id === id);
-  if (idea) { idea.done = !idea.done; save(); renderAll(); }
-}
-
-function deleteIdea(pid, id) {
-  data[pid] = data[pid].filter(i => i.id !== id);
-  save();
-  renderAll();
-}
-
-function setFilter(pid, val) {
-  activeFilter[pid] = val;
-  renderAll();
-}
-
-renderAll();
+listenAll();
 </script>
 </body>
 </html>
