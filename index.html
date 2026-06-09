@@ -365,14 +365,93 @@ body{
 .chip.occ{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
 
 .idea-side{display:flex;flex-direction:column;gap:4px;flex-shrink:0;align-items:flex-end}
-.del-btn{
+.idea-actions-row{display:flex;gap:3px;opacity:0;transition:opacity var(--transition)}
+.idea:hover .idea-actions-row{opacity:1}
+.act-btn{
   width:28px;height:28px;border-radius:8px;border:none;
   background:none;color:var(--text3);cursor:pointer;
   display:flex;align-items:center;justify-content:center;font-size:0.78rem;
-  transition:all var(--transition);opacity:0;
+  transition:all var(--transition);
 }
-.idea:hover .del-btn{opacity:1}
-.del-btn:hover{background:#fee2e2;color:#dc2626}
+.act-btn:hover{background:var(--surface);color:var(--text2)}
+.act-btn.del:hover{background:#fee2e2;color:#dc2626}
+.act-btn.edit:hover{background:#eff6ff;color:var(--blue2)}
+
+/* ── Edit modal ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(10,22,40,0.45);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.22s ease;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--white);border-radius:24px;
+  width:100%;max-width:560px;
+  box-shadow:0 24px 80px rgba(10,22,40,0.22);
+  overflow:hidden;
+  transform:translateY(16px) scale(0.98);
+  transition:transform 0.26s cubic-bezier(.34,1.2,.64,1);
+}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
+.modal-header{
+  padding:22px 24px 18px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.modal-avatar{
+  width:40px;height:40px;border-radius:12px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-size:1.1rem;font-weight:300;
+}
+.modal-avatar.Lou{background:var(--lou-ll);color:var(--lou)}
+.modal-avatar.Timeo{background:var(--timeo-ll);color:var(--timeo)}
+.modal-avatar.Charlotte{background:var(--charlotte-ll);color:var(--charlotte)}
+.modal-avatar.Julien{background:var(--julien-ll);color:var(--julien)}
+.modal-title{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:300;color:var(--text)}
+.modal-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
+.modal-close{
+  margin-left:auto;width:32px;height:32px;border-radius:8px;border:none;
+  background:var(--surface);color:var(--text3);cursor:pointer;font-size:0.85rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--transition);
+}
+.modal-close:hover{background:var(--surface);color:var(--text)}
+.modal-body{padding:20px 24px;display:flex;flex-direction:column;gap:12px}
+.modal-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.modal-footer{
+  padding:16px 24px 20px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;align-items:center;
+}
+.btn-cancel{
+  padding:10px 20px;border-radius:10px;border:1.5px solid var(--border);
+  background:none;color:var(--text2);font-family:'DM Sans',sans-serif;
+  font-size:0.87rem;cursor:pointer;transition:all var(--transition);
+}
+.btn-cancel:hover{background:var(--surface)}
+.btn-save{
+  padding:10px 24px;border-radius:10px;border:none;
+  font-family:'DM Sans',sans-serif;font-size:0.87rem;font-weight:600;
+  cursor:pointer;transition:all var(--transition);color:#fff;
+  box-shadow:0 2px 10px rgba(0,0,0,0.15);
+}
+.btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.2)}
+.btn-save:active{transform:scale(0.98)}
+.btn-save:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-save.Lou{background:linear-gradient(135deg,var(--lou),#f472b6)}
+.btn-save.Timeo{background:linear-gradient(135deg,var(--blue2),var(--blue3))}
+.btn-save.Charlotte{background:linear-gradient(135deg,#047857,var(--charlotte))}
+.btn-save.Julien{background:linear-gradient(135deg,#b45309,var(--julien))}
+
+@media(max-width:560px){
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:24px 24px 0 0;max-width:100%}
+  .modal-row{grid-template-columns:1fr}
+  .idea-actions-row{opacity:1}
+}
 
 /* ── Empty state ── */
 .empty-state{
@@ -510,7 +589,39 @@ body{
 <!-- Bottom nav -->
 <nav class="bottom-nav" id="bottom-nav"></nav>
 
-<!-- Firebase -->
+<!-- Edit modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-avatar" id="modal-avatar"></div>
+      <div>
+        <div class="modal-title">Modifier l'idée</div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Idée cadeau</label>
+        <input id="me-title" type="text" placeholder="Titre de l'idée" onkeydown="if(event.key==='Enter')saveEdit()">
+      </div>
+      <div class="modal-row">
+        <div class="field"><label>Catégorie</label><select id="me-cat"></select></div>
+        <div class="field"><label>Occasion</label><select id="me-occ"></select></div>
+        <div class="field"><label>Budget</label><select id="me-price"></select></div>
+      </div>
+      <div class="field">
+        <label>Note ou lien</label>
+        <textarea id="me-note" rows="2" placeholder="Description, URL, magasin..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-save" id="modal-save-btn" onclick="saveEdit()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import{getFirestore,collection,doc,onSnapshot,addDoc,updateDoc,deleteDoc,serverTimestamp,query,orderBy}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
@@ -597,8 +708,75 @@ async function remove(pid,id){
 
 function setFilter(pid,f){filters[pid]=f;render();}
 function go(id){cur=id;render();window.scrollTo({top:0,behavior:'smooth'});}
+
+/* ─ edit modal ─ */
+let editCtx={pid:null,id:null};
+
+function openEdit(pid,id){
+  const idea=data[pid].find(i=>i.id===id);
+  if(!idea)return;
+  const p=PERSONS.find(x=>x.id===pid);
+  editCtx={pid,id};
+
+  // Header
+  const av=document.getElementById('modal-avatar');
+  av.textContent=p.av;av.className='modal-avatar '+p.cls;
+  document.getElementById('modal-sub').textContent=p.label;
+
+  // Save button color
+  const saveBtn=document.getElementById('modal-save-btn');
+  saveBtn.className='btn-save '+p.cls;
+
+  // Populate fields
+  document.getElementById('me-title').value=idea.title||'';
+  document.getElementById('me-note').value=idea.note||'';
+
+  const catSel=document.getElementById('me-cat');
+  catSel.innerHTML=CATS.map(c=>'<option value="'+esc(c)+'"'+(idea.cat===c?' selected':'')+'>'+( c||'—')+'</option>').join('');
+
+  const occSel=document.getElementById('me-occ');
+  occSel.innerHTML=OCCS.map(o=>'<option value="'+esc(o)+'"'+(idea.occ===o?' selected':'')+'>'+( o||'—')+'</option>').join('');
+
+  const priceSel=document.getElementById('me-price');
+  priceSel.innerHTML=BUDGS.map(b=>'<option value="'+esc(b)+'"'+(idea.price===b?' selected':'')+'>'+( b||'—')+'</option>').join('');
+
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('me-title').focus(),80);
+}
+
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modal-overlay'))return;
+  document.getElementById('modal-overlay').classList.remove('open');
+  editCtx={pid:null,id:null};
+}
+
+async function saveEdit(){
+  const{pid,id}=editCtx;
+  if(!pid||!id)return;
+  const title=document.getElementById('me-title').value.trim();
+  if(!title){document.getElementById('me-title').focus();return;}
+  const saveBtn=document.getElementById('modal-save-btn');
+  saveBtn.disabled=true;
+  sync('loading','Enregistrement...');
+  try{
+    await updateDoc(doc(db,'cadeaux',pid,'ideas',id),{
+      title,
+      cat:document.getElementById('me-cat').value,
+      occ:document.getElementById('me-occ').value,
+      price:document.getElementById('me-price').value,
+      note:document.getElementById('me-note').value.trim(),
+    });
+    document.getElementById('modal-overlay').classList.remove('open');
+    editCtx={pid:null,id:null};
+  }catch(e){console.error(e);sync('err','Erreur');}
+  saveBtn.disabled=false;
+}
+
+// Close on Escape
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
 window.addIdea=addIdea;window.toggle=toggle;window.remove=remove;
-window.setFilter=setFilter;window.go=go;
+window.setFilter=setFilter;window.go=go;window.openEdit=openEdit;window.closeModal=closeModal;window.saveEdit=saveEdit;
 
 /* ─ helpers ─ */
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -672,7 +850,10 @@ function render(){
             (idea.occ?'<span class="chip occ">'+esc(idea.occ)+'</span>':'')+
           '</div>'+
         '</div>'+
-        '<div class="idea-side"><button class="del-btn" onclick="remove(\''+p.id+'\',\''+idea.id+'\')" title="Supprimer">&#10005;</button></div>'+
+        '<div class="idea-side"><div class="idea-actions-row">'+
+          '<button class="act-btn edit" onclick="openEdit(\''+p.id+'\',\''+idea.id+'\')" title="Modifier">&#9998;</button>'+
+          '<button class="act-btn del" onclick="remove(\''+p.id+'\',\''+idea.id+'\')" title="Supprimer">&#10005;</button>'+
+        '</div></div>'+
       '</div>';
     }).join('');
 
